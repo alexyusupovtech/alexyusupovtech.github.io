@@ -1,0 +1,94 @@
+---
+import { site, nav } from "../site";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top" data-reveal>
+      <p class="eyebrow">Get in touch</p>
+      <a href={`mailto:${site.email}`} class="footer-email glow-text link-line">{site.email}</a>
+    </div>
+
+    <div class="footer-grid">
+      <div class="footer-col">
+        <p class="footer-label mono">Studio</p>
+        <p class="footer-value">{site.studio}<br />{site.location}</p>
+      </div>
+      <div class="footer-col">
+        <p class="footer-label mono">Elsewhere</p>
+        <ul class="footer-links">
+          {site.socials.map((s) => (
+            <li><a href={s.url} class="link-line" target="_blank" rel="noopener">{s.label} <span class="muted">{s.handle}</span></a></li>
+          ))}
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p class="footer-label mono">Navigate</p>
+        <ul class="footer-links">
+          {nav.map((n) => (<li><a href={n.href} class="link-line">{n.label}</a></li>))}
+          <li><a href="/contact" class="link-line">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-base">
+      <span class="mono">© {year} {site.name}</span>
+      <span class="muted mono">Crafted among the stars.</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    background: linear-gradient(to bottom, transparent, rgba(var(--accent-rgb),0.05));
+    padding-block: clamp(4rem, 2rem + 7vw, 8rem) 2.5rem;
+  }
+  .footer-top {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem 2.5rem;   /* space between "Get in touch" and the email */
+    margin-bottom: clamp(3rem, 8vw, 6rem);
+  }
+  .footer-email {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    word-break: break-word;
+    color: var(--accent-ink);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding-block: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .footer-label {
+    font-size: var(--step--1);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-3);
+    margin-bottom: 0.9rem;
+  }
+  .footer-value { margin: 0; line-height: 1.5; color: var(--text-soft); }
+  .footer-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+
+  .footer-base {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 640px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

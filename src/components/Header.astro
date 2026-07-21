@@ -1,0 +1,235 @@
+---
+import { site, nav } from "../site";
+import { getProfileImage } from "../lib/media";
+
+const path = Astro.url.pathname;
+const profile = getProfileImage();
+const isActive = (href: string) => path === href || path.startsWith(href + "/");
+---
+
+<header class="site-header" data-header>
+  <div class="header-inner">
+    <!-- Left: face / logo → home -->
+    <a href="/" class="brand" aria-label={`${site.name} — home`}>
+      {profile ? (
+        <img class="brand-photo" src={profile} alt={site.name} width="60" height="60" />
+      ) : (
+        <img class="brand-logo" src="/brand-logo.svg" alt={`${site.name} logo`} width="82" height="82" />
+      )}
+    </a>
+
+    <!-- Center: discipline nav -->
+    <nav class="nav" aria-label="Primary">
+      {nav.map((item) => (
+        <a href={item.href} class={`nav-link${isActive(item.href) ? " is-active" : ""}`}>{item.label}</a>
+      ))}
+    </nav>
+
+    <!-- Right: contact -->
+    <div class="header-right">
+      <a href="/contact" class={`contact-btn${isActive("/contact") ? " is-active" : ""}`}>
+        Contact
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>
+      </a>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" data-menu-toggle>
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" data-mobile-menu hidden>
+    <nav aria-label="Mobile">
+      {nav.map((item) => (
+        <a href={item.href} class="mobile-link" data-menu-close>{item.label}</a>
+      ))}
+      <a href="/contact" class="mobile-link mobile-link--contact" data-menu-close>Contact ↗</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector("[data-menu-toggle]");
+  const menu = document.querySelector("[data-mobile-menu]");
+  const setOpen = (open: boolean) => {
+    if (!menu || !toggle) return;
+    menu.toggleAttribute("hidden", !open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.classList.toggle("is-open", open);
+    document.body.style.overflow = open ? "hidden" : "";
+  };
+  toggle?.addEventListener("click", () =>
+    setOpen(toggle.getAttribute("aria-expanded") !== "true")
+  );
+  document.querySelectorAll("[data-menu-close]").forEach((el) =>
+    el.addEventListener("click", () => setOpen(false))
+  );
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    /* extra top padding nudges the whole bar down from the very top edge;
+       smaller side padding pushes brand + contact toward the corners */
+    padding: clamp(1.5rem, 2.8vw, 2.4rem) clamp(1rem, 2.4vw, 2.2rem) 0;
+  }
+  /* full-width distribution (bonbrain-style): logo far-left, nav centered, contact far-right */
+  .header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    height: 64px;
+    max-width: none;
+    margin-inline: auto;
+  }
+
+  /* Brand (left) */
+  .brand {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .brand-photo {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 0 18px rgba(var(--accent-rgb),0.3);
+    transition: box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .brand:hover .brand-photo { transform: scale(1.1); box-shadow: 0 0 26px rgba(var(--accent-rgb),0.45); }
+  .brand-logo {
+    width: 82px; height: 82px;
+    animation: logoPulse 4.5s ease-in-out infinite;
+    transition: transform 0.4s var(--ease), filter 0.4s var(--ease);
+  }
+  /* on hover: stop pulsing and hold a big, bright glow */
+  .brand:hover .brand-logo {
+    transform: scale(1.12);
+    animation: none;
+    filter: drop-shadow(0 0 60px rgba(var(--accent-rgb),1)) drop-shadow(0 0 22px rgba(var(--accent-rgb),0.9));
+  }
+  /* slow pulsing gold glow — bigger radius, brighter */
+  @keyframes logoPulse {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(var(--accent-rgb),0.6)); }
+    50%      { filter: drop-shadow(0 0 62px rgba(var(--accent-rgb),1)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brand-logo { animation: none; filter: drop-shadow(0 0 26px rgba(var(--accent-rgb),0.65)); }
+  }
+
+  /* Nav (center) — the bordered pill wraps ONLY the four discipline tabs */
+  .nav {
+    justify-self: center;
+    display: flex;
+    gap: clamp(1rem, 1.8vw, 2.2rem);
+    padding: 0.7rem clamp(1.2rem, 2vw, 1.9rem);
+    border: 1px solid var(--line-strong); /* same outline as the Contact button */
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg) 22%, transparent); /* the only difference: a slight black fill */
+    -webkit-backdrop-filter: saturate(160%) blur(2px);
+    backdrop-filter: saturate(160%) blur(2px);
+    transform-origin: center;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease), transform 0.35s var(--ease);
+  }
+  /* identical hover to the Contact button (gold border + brighter glow + grow) */
+  .nav:hover {
+    transform: scale(1.06);
+    border-color: var(--accent);
+    box-shadow: 0 0 28px rgba(var(--accent-rgb),0.7), 0 0 10px rgba(var(--accent-rgb),0.45);
+  }
+  /* keep the gold glow while scrolled down as well (same slight black fill) */
+  .site-header.is-scrolled .nav {
+    border-color: var(--accent);
+    box-shadow: 0 0 28px rgba(var(--accent-rgb),0.7), 0 0 10px rgba(var(--accent-rgb),0.45);
+  }
+  .nav-link {
+    font-family: var(--font-display); /* Futura / Jost */
+    font-weight: 600;                 /* bold */
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text); /* full-brightness tab labels */
+    padding: 0.15em 0;
+    transition: color 0.3s var(--ease), text-shadow 0.3s var(--ease);
+  }
+  .nav-link:hover {
+    color: #FFE08A;
+    text-shadow: 0 0 20px rgba(var(--accent-rgb),0.9), 0 0 42px rgba(var(--accent-rgb),0.55);
+  }
+  .nav-link.is-active {
+    color: var(--accent-ink);
+    text-shadow: 0 0 14px rgba(var(--accent-rgb),0.5);
+  }
+
+  /* Right */
+  .header-right { justify-self: end; display: flex; align-items: center; gap: 0.75rem; }
+  .contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.75em 1.2em;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    color: var(--text);
+    -webkit-backdrop-filter: saturate(160%) blur(2px);
+    backdrop-filter: saturate(160%) blur(2px);
+    transform-origin: center;
+    transition: border-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.4s var(--ease), transform 0.35s var(--ease);
+  }
+  .contact-btn:hover, .contact-btn.is-active {
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 0 28px rgba(var(--accent-rgb),0.7), 0 0 10px rgba(var(--accent-rgb),0.45);
+  }
+  .contact-btn:hover { transform: scale(1.06); }
+
+  .menu-toggle {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 6px;
+    width: 42px; height: 42px;
+    background: none; border: none; cursor: pointer;
+  }
+  .menu-toggle span {
+    display: block; height: 1.5px; width: 24px;
+    background: var(--text); margin-inline: auto;
+    transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+  }
+  .menu-toggle.is-open span:first-child { transform: translateY(3.75px) rotate(45deg); }
+  .menu-toggle.is-open span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+
+  .mobile-menu {
+    margin-top: 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 20px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  }
+  .mobile-menu nav { display: flex; flex-direction: column; padding: 0.5rem 1.4rem 1.2rem; }
+  .mobile-link {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--step-2);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .mobile-link--contact { color: var(--accent-ink); }
+
+  @media (max-width: 860px) {
+    .nav { display: none; }
+    .contact-btn { display: none; }
+    .menu-toggle { display: flex; }
+    .header-inner { grid-template-columns: 1fr auto; }
+  }
+</style>

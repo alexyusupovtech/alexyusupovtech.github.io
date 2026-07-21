@@ -1,0 +1,10 @@
+Drop ONE starfield / background image here.
+
+Name it: stars.jpg  (or stars.png / stars.webp)
+
+The first image in this folder becomes the full-page background automatically.
+It's scaled to COVER the screen (no tiling / repeating), with the gold orbs
+floating on top. Big is good (yours is 5376x3584 — perfect).
+
+Remove or replace the file anytime; the site updates on refresh.
+Until an image is here, the site falls back to the CSS-generated stars.

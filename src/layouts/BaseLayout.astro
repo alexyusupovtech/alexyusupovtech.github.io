@@ -1,0 +1,105 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../site";
+import { getProfileImage, getBackgroundImage } from "../lib/media";
+import "../styles/global.css";
+
+// Use your dropped photo (assets/brand/) as the favicon when present,
+// otherwise fall back to the logo mark.
+const profile = getProfileImage();
+
+// Optional real starfield photo (drop one into assets/bg/). Falls back to the
+// CSS-generated stars when absent.
+const bgPhoto = getBackgroundImage();
+const favicon = profile ?? "/favicon.svg";
+const faviconType = favicon.endsWith(".svg")
+  ? "image/svg+xml"
+  : favicon.endsWith(".png")
+    ? "image/png"
+    : favicon.endsWith(".webp")
+      ? "image/webp"
+      : "image/jpeg";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Splash page hides the footer and lets the hero fill the viewport. */
+  splash?: boolean;
+}
+
+const {
+  title = `${site.name} — ${site.role}`,
+  description = site.tagline,
+  splash = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type={faviconType} href={favicon} />
+    <meta name="theme-color" content="#05060D" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div
+      class:list={["space-bg", { "has-photo": bgPhoto }]}
+      style={bgPhoto ? `--bg-photo:url('${bgPhoto}')` : undefined}
+      aria-hidden="true"
+    >
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    {!splash && <Footer />}
+
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      );
+      document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+      const header = document.querySelector("[data-header]");
+      const onScroll = () => {
+        if (window.scrollY > 30) header?.classList.add("is-scrolled");
+        else header?.classList.remove("is-scrolled");
+      };
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    </script>
+  </body>
+</html>

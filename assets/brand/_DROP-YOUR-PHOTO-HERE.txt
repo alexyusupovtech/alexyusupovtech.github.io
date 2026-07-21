@@ -1,0 +1,6 @@
+Drop a photo of YOUR FACE / logo here (top-left of the site, links home).
+
+Name it exactly: profile.jpg  (or profile.png / profile.webp)
+
+Best: a square image, at least 200x200px. It's shown in a small circle.
+Until you add one, an "AY" monogram shows instead.

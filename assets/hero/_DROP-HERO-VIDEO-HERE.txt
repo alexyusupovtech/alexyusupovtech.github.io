@@ -1,0 +1,10 @@
+Drop your HERO / HIGHLIGHT-REEL VIDEO here.
+
+The first video file in this folder plays automatically (muted, looping)
+as the full-screen background of the home splash page, with your name and
+slogan on top.
+
+Best format: .mp4 (H.264), 1920x1080 or larger, landscape.
+Keep it reasonably sized (ideally under ~30-40 MB) so the page loads fast.
+
+Until you add one, the splash shows an animated starfield placeholder.

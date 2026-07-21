@@ -1,0 +1,319 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { disciplines } from "../site";
+import { getWorkMedia } from "../lib/media";
+
+export function getStaticPaths() {
+  return disciplines.map((d) => ({
+    params: { discipline: d.key },
+    props: { discipline: d },
+  }));
+}
+
+const { discipline } = Astro.props;
+const media = getWorkMedia(discipline.folder);
+const count = media.length;
+---
+
+<BaseLayout
+  title={`${discipline.title} — Alex Yusupov`}
+  description={discipline.blurb}
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>
+        {String(disciplines.findIndex((d) => d.key === discipline.key) + 1).padStart(2, "0")} / Portfolio
+      </p>
+      <h1 class="page-title glow-text" data-reveal>{discipline.title}</h1>
+      <p class="page-lede text-measure" data-reveal>{discipline.blurb}</p>
+      {count > 0 && (
+        <p class="count mono" data-reveal>{count} {count === 1 ? "piece" : "pieces"}</p>
+      )}
+    </div>
+  </section>
+
+  <section class="gallery-section">
+    <div class="wrap">
+      {count === 0 ? (
+        <div class="empty" data-reveal>
+          <div class="empty-orb" aria-hidden="true"></div>
+          <h2 class="empty-title">New work landing soon</h2>
+          <p class="empty-note muted mono">
+            Drop files into&nbsp; assets/work/{discipline.folder}&nbsp; and they appear here automatically.
+          </p>
+        </div>
+      ) : (
+        <div class="gallery">
+          {media.map((m, i) => (
+            <figure
+              class:list={["tile", { "tile--video": m.type === "video" }]}
+              data-reveal
+              role="button"
+              tabindex="0"
+              aria-label={`Open ${m.name}`}
+              data-type={m.type}
+              data-src={m.src}
+              data-name={m.name}
+              style={`transition-delay:${(i % 3) * 70}ms`}
+            >
+              {m.type === "video" ? (
+                <video src={m.src} muted loop autoplay playsinline preload="metadata"></video>
+              ) : (
+                <img src={m.src} alt={m.name} loading={i < 4 ? "eager" : "lazy"} decoding="async" />
+              )}
+              {m.type === "video" && (
+                <span class="tile-play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              )}
+              <figcaption class="tile-cap">{m.name}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Click-to-enlarge lightbox -->
+  <div class="lightbox" data-lightbox hidden>
+    <button class="lb-close" data-lb-close aria-label="Close">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="lb-stage" data-lb-stage></div>
+  </div>
+
+  <script>
+    const lb = document.querySelector<HTMLElement>("[data-lightbox]");
+    const stage = document.querySelector<HTMLElement>("[data-lb-stage]");
+
+    function closeLightbox() {
+      if (!lb || !stage) return;
+      const fsEl = document.fullscreenElement || (document as any).webkitFullscreenElement;
+      if (fsEl) {
+        (document.exitFullscreen || (document as any).webkitExitFullscreen)?.call(document);
+      }
+      lb.hidden = true;
+      stage.innerHTML = "";
+      document.body.style.overflow = "";
+    }
+
+    function requestFs(el: any) {
+      const fn =
+        el.requestFullscreen || el.webkitRequestFullscreen || el.webkitEnterFullscreen;
+      if (fn) {
+        try { fn.call(el); } catch (e) {}
+      }
+    }
+
+    function openLightbox(type: string, src: string, name: string) {
+      if (!lb || !stage) return;
+      stage.innerHTML = "";
+      if (type === "video") {
+        const v = document.createElement("video");
+        v.src = src;
+        v.controls = true;
+        v.loop = true;
+        v.playsInline = true;
+        v.muted = false;          // play with sound
+        v.volume = 1;
+        stage.appendChild(v);
+        lb.hidden = false;
+        document.body.style.overflow = "hidden";
+        requestFs(v);             // go true fullscreen (uses the click gesture)
+        v.play().catch(() => {});
+        v.addEventListener("webkitendfullscreen", closeLightbox); // iOS exit
+      } else {
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = name;
+        stage.appendChild(img);
+        lb.hidden = false;
+        document.body.style.overflow = "hidden";
+        requestFs(stage);
+      }
+    }
+
+    document.querySelectorAll<HTMLElement>(".tile").forEach((tile) => {
+      const activate = () =>
+        openLightbox(
+          tile.dataset.type || "image",
+          tile.dataset.src || "",
+          tile.dataset.name || ""
+        );
+      tile.addEventListener("click", activate);
+      tile.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          activate();
+        }
+      });
+    });
+
+    lb?.addEventListener("click", (e) => {
+      if (e.target === lb) closeLightbox();
+    });
+    document.querySelector("[data-lb-close]")?.addEventListener("click", closeLightbox);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && lb && !lb.hidden) closeLightbox();
+    });
+    // Exiting fullscreen (Esc / the native button) closes the lightbox too.
+    const onFsChange = () => {
+      const fsEl = document.fullscreenElement || (document as any).webkitFullscreenElement;
+      if (!fsEl && lb && !lb.hidden) closeLightbox();
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+  </script>
+</BaseLayout>
+
+<style>
+  .page-head { padding-top: clamp(8rem, 14vw, 12rem); padding-bottom: 1rem; }
+  .page-title {
+    font-size: var(--step-4);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 1rem 0 1.2rem;
+  }
+  .page-lede { font-size: var(--step-1); color: var(--text-soft); font-weight: 300; }
+  .count { margin-top: 1.2rem; color: var(--accent-3); letter-spacing: 0.2em; text-transform: uppercase; font-size: var(--step--1); }
+
+  .gallery-section { padding-block: clamp(2.5rem, 5vw, 4rem) clamp(4rem, 9vw, 8rem); }
+
+  /* Masonry via CSS columns — keeps each piece's natural proportions */
+  .gallery {
+    columns: 3 340px;
+    column-gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  .tile {
+    break-inside: avoid;
+    margin: 0 0 clamp(1rem, 2vw, 1.5rem);
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .tile:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* Play badge on video tiles */
+  .tile-play {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 64px; height: 64px;
+    padding-left: 4px;
+    border-radius: 50%;
+    color: #05060D;
+    background: color-mix(in srgb, var(--accent) 92%, transparent);
+    box-shadow: 0 0 30px rgba(var(--accent-rgb),0.5);
+    opacity: 0.85;
+    transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+    pointer-events: none;
+  }
+  .tile--video:hover .tile-play { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .tile:hover {
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(var(--accent-rgb),0.22);
+    transform: translateY(-3px);
+  }
+  .tile img, .tile video { width: 100%; height: auto; display: block; }
+  .tile-cap {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 1.4rem 1rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    text-transform: capitalize;
+    color: var(--text);
+    background: linear-gradient(to top, rgba(5,6,13,0.85), transparent);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .tile:hover .tile-cap { opacity: 1; transform: none; }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 4vmin;
+    background: rgba(5,6,13,0.88);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: lbFade 0.25s var(--ease);
+  }
+  .lightbox[hidden] { display: none; }
+  .lb-stage {
+    display: grid;
+    place-items: center;
+    animation: lbZoom 0.32s var(--ease);
+  }
+  .lb-stage video,
+  .lb-stage img {
+    max-width: 92vw;
+    max-height: 88vh;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.65), 0 0 50px rgba(var(--accent-rgb),0.18);
+  }
+  .lb-close {
+    position: absolute;
+    top: clamp(1rem, 3vmin, 2rem);
+    right: clamp(1rem, 3vmin, 2rem);
+    z-index: 210;
+    display: grid;
+    place-items: center;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  }
+  .lb-close:hover {
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb),0.4);
+  }
+  @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes lbZoom {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox, .lb-stage { animation: none; }
+  }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: clamp(3rem, 8vw, 6rem) 1rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+  }
+  .empty-orb {
+    width: 80px; height: 80px; margin: 0 auto 1.8rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--accent-3), var(--accent) 45%, var(--accent-2) 80%);
+    box-shadow: 0 0 50px rgba(var(--accent-rgb),0.5);
+    animation: float 5s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .empty-title { font-size: var(--step-2); text-transform: uppercase; letter-spacing: 0.03em; }
+  .empty-note { margin-top: 1rem; font-size: var(--step--1); }
+</style>

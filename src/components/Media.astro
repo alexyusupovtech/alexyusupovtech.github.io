@@ -1,0 +1,106 @@
+---
+// Renders an image or video from /assets, or a graceful placeholder when the
+// file isn't there yet. Drop the real file into assets/images or assets/videos
+// and set its path (e.g. cover: "/images/asu/cover.jpg") to replace the placeholder.
+interface Props {
+  src?: string;
+  type?: "image" | "video";
+  alt?: string;
+  ratio?: string;
+  wide?: boolean;
+  label?: string;
+  eager?: boolean;
+  class?: string;
+}
+const {
+  src,
+  type = "image",
+  alt = "",
+  ratio = "4/3",
+  wide = false,
+  label = "Image",
+  eager = false,
+  class: className = "",
+} = Astro.props;
+---
+
+<figure
+  class:list={["media", { "media--wide": wide }, className]}
+  style={`aspect-ratio:${ratio}`}
+>
+  {src && type === "image" && (
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      onerror="this.style.display='none'"
+    />
+  )}
+  {src && type === "video" && (
+    <video
+      src={src}
+      muted
+      loop
+      playsinline
+      autoplay
+      preload="metadata"
+      onerror="this.style.display='none'"
+    ></video>
+  )}
+
+  <div class="media-ph" aria-hidden={src ? "true" : "false"}>
+    <div class="media-ph-inner">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="1.5" />
+        <circle cx="8.5" cy="9.5" r="1.6" />
+        <path d="M4 17l4.5-4.5L13 16l3-3 4 4" />
+      </svg>
+      <span class="media-ph-label">{label}</span>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .media {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    width: 100%;
+  }
+  .media img,
+  .media video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .media-ph {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    background-image:
+      radial-gradient(120% 100% at 50% 0%, rgba(var(--accent-rgb),0.10), transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(255,255,255,0.03) 11px, rgba(255,255,255,0.03) 12px);
+  }
+  .media-ph-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 1rem;
+  }
+  .media-ph-label {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+  }
+</style>

@@ -1,0 +1,113 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../site";
+import { getHeroVideo } from "../lib/media";
+
+const heroVideo = getHeroVideo();
+---
+
+<BaseLayout splash={true} title="Alex Yusupov">
+  <section class:list={["hero", { "hero--novideo": !heroVideo }]}>
+    <!-- Background reel -->
+    {heroVideo && (
+      <video
+        class="hero-video"
+        src={heroVideo}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+      ></video>
+    )}
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <!-- Content -->
+    <div class="hero-content">
+      <h1 class="hero-name glow-text">Alex Yusupov</h1>
+      <p class="hero-slogan">{site.slogan}</p>
+    </div>
+
+    <div class="hero-scroll" aria-hidden="true">
+      <span class="mono">Dreamcatcher Productions</span>
+    </div>
+  </section>
+
+  <script>
+    // Nudge the muted hero video to autoplay (some browsers need it).
+    const v = document.querySelector<HTMLVideoElement>(".hero-video");
+    if (v) {
+      v.muted = true;
+      const tryPlay = () => v.play().catch(() => {});
+      tryPlay();
+      v.addEventListener("canplay", tryPlay, { once: true });
+      v.addEventListener("loadeddata", tryPlay, { once: true });
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 6rem var(--gutter) 4rem;
+  }
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .hero-overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      radial-gradient(85% 70% at 50% 50%, rgba(5,6,13,0.32), transparent 72%),
+      linear-gradient(to bottom, rgba(5,6,13,0.3), transparent 30%, transparent 68%, rgba(5,6,13,0.6));
+  }
+  /* extra nebula glow when there's no video yet */
+  .hero--novideo .hero-overlay {
+    background:
+      radial-gradient(60% 50% at 50% 45%, rgba(var(--accent-rgb),0.16), transparent 70%),
+      radial-gradient(50% 40% at 70% 70%, rgba(var(--accent-2-rgb),0.14), transparent 70%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: min(94vw, 60rem);
+  }
+  .hero-name {
+    font-size: clamp(1.7rem, 9vw, 6.5rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    margin: 0;
+    white-space: nowrap;   /* keep the full name on one line */
+  }
+  .hero-slogan {
+    margin: 1.8rem 0 0;
+    font-size: var(--step-1);
+    color: var(--text-soft);
+    font-weight: 300;
+    max-width: 42ch;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    left: 0; right: 0; bottom: 1.6rem;
+    z-index: 2;
+    text-align: center;
+    font-size: var(--step--1);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

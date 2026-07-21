@@ -1,0 +1,18 @@
+{
+  "name": "capricious-centauri",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "optimize": "py scripts/optimize_assets.py"
+  },
+  "dependencies": {
+    "astro": "^7.1.1"
+  }
+}
