@@ -36,7 +36,7 @@ VIDEO_EXT = {".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v", ".ogv", ".wmv", ".
 MAX_IMG_W = 3840
 IMG_QUALITY = 82
 IMG_HEAVY_BYTES = 1_200_000
-VIDEO_MAX_MB = 20
+VIDEO_MAX_MB = 45  # only re-compress videos bigger than this (avoids re-encoding already-web-sized clips every run)
 VIDEO_CRF = 24
 
 

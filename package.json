@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "optimize": "py scripts/optimize_assets.py"
+    "optimize": "py scripts/optimize_assets.py",
+    "publish": "node scripts/publish.mjs"
   },
   "dependencies": {
     "astro": "^7.1.1"
