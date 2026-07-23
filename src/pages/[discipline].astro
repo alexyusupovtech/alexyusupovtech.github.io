@@ -179,15 +179,14 @@ const count = media.length;
 
   .gallery-section { padding-block: clamp(2.5rem, 5vw, 4rem) clamp(4rem, 9vw, 8rem); }
 
-  /* Fixed-height rows — items flow left-to-right and keep their real shape (no crop) */
+  /* Masonry — up to 3 columns, natural shapes, tightly packed */
   .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(0.6rem, 1.4vw, 1.15rem);
+    columns: 3 340px;
+    column-gap: clamp(0.4rem, 1vw, 0.7rem);
   }
   .tile {
-    height: clamp(160px, 19vw, 240px);
-    max-width: 100%;
+    break-inside: avoid;
+    margin: 0 0 clamp(0.4rem, 1vw, 0.7rem);
     position: relative;
     overflow: hidden;
     border-radius: var(--radius);
@@ -225,13 +224,7 @@ const count = media.length;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(var(--accent-rgb),0.22);
     transform: translateY(-3px);
   }
-  .tile img, .tile video { height: 100%; width: auto; max-width: 100%; display: block; }
-  /* On phones, show each piece full width at its natural height */
-  @media (max-width: 640px) {
-    .gallery { display: grid; grid-template-columns: 1fr; }
-    .tile { height: auto; }
-    .tile img, .tile video { width: 100%; height: auto; }
-  }
+  .tile img, .tile video { width: 100%; height: auto; display: block; }
   .tile-cap {
     position: absolute;
     left: 0; right: 0; bottom: 0;
