@@ -1,7 +1,9 @@
 Drop your DESIGN (graphic design) work in this folder.
 
-Everything you put here appears automatically on the DESIGN page,
-in filename order. Images: .jpg .png .webp .gif .svg  •  Videos: .mp4 .webm .mov
-Tip: name files 01-name.jpg, 02-name.jpg... to control the order.
+Everything you put here appears automatically on the DESIGN page, in filename order.
+Images: .jpg .png .webp .gif .svg   •   Videos: .mp4 .webm .mov
+PDFs:   .pdf  --> every page is turned into an image and shown (great for
+        multi-page brochures, layouts, decks). Just drop the PDF in and publish.
 
-cd "C:\Users\alexy\Projects\portfolio-website"; npm run publish
+Tip: name files 01-name, 02-name... to control the order.
+(For a PDF, its pages appear as 01-name-p01, 01-name-p02, ... automatically.)

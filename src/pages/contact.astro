@@ -24,11 +24,11 @@ import { site } from "../site";
         <form class="contact-form" id="contact-form" data-email={site.email} data-reveal>
           <div class="field">
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" autocomplete="name" placeholder="Your name" />
+            <input type="text" id="name" name="name" autocomplete="name" placeholder="Your name" required />
           </div>
           <div class="field">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" autocomplete="email" placeholder="you@email.com" />
+            <input type="email" id="email" name="email" autocomplete="email" placeholder="you@email.com" required />
           </div>
           <div class="field">
             <label for="subject">Subject <span class="req">*</span></label>
@@ -38,8 +38,10 @@ import { site } from "../site";
             <label for="message">Message <span class="req">*</span></label>
             <textarea id="message" name="message" rows="6" required placeholder="Tell me about your project…"></textarea>
           </div>
+          <!-- spam honeypot: real people leave this empty -->
+          <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <button type="submit" class="btn form-submit">Send message <span class="arrow">↗</span></button>
-          <p class="form-note mono">This opens your email app with the message pre-filled.</p>
+          <p class="form-status mono" data-form-status hidden></p>
         </form>
 
         <!-- Get in touch -->
@@ -73,19 +75,48 @@ import { site } from "../site";
 
 <script>
   const form = document.querySelector<HTMLFormElement>("#contact-form");
-  form?.addEventListener("submit", (e) => {
+  const statusEl = document.querySelector<HTMLElement>("[data-form-status]");
+  const btn = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const email = form?.dataset.email || "";
+
+  const setStatus = (msg: string, kind: "" | "ok" | "err" = "") => {
+    if (!statusEl) return;
+    statusEl.hidden = false;
+    statusEl.textContent = msg;
+    statusEl.className = "form-status mono" + (kind ? " is-" + kind : "");
+  };
+
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = form.dataset.email || "";
-    const data = new FormData(form);
-    const name = (data.get("name") as string) || "";
-    const from = (data.get("email") as string) || "";
-    const subject = (data.get("subject") as string) || "Portfolio inquiry";
-    const message = (data.get("message") as string) || "";
-    const bodyParts = [message, "", "—", name, from].filter(Boolean);
-    const href =
-      `mailto:${email}?subject=${encodeURIComponent(subject)}` +
-      `&body=${encodeURIComponent(bodyParts.join("\n"))}`;
-    window.location.href = href;
+    if (!form.reportValidity()) return;
+
+    const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+    // Formsubmit control fields
+    data._subject = `Portfolio message: ${data.subject || "(no subject)"}`;
+    data._template = "table";
+    data._captcha = "false";
+
+    setStatus("Sending…");
+    if (btn) btn.disabled = true;
+
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && String(json.success) !== "false") {
+        setStatus("✓ Message sent — thank you! I'll get back to you soon.", "ok");
+        form.reset();
+      } else {
+        throw new Error(json.message || "Request failed");
+      }
+    } catch (err) {
+      setStatus(`Couldn't send just now — please email me directly at ${email}.`, "err");
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   });
 </script>
 
@@ -127,8 +158,8 @@ import { site } from "../site";
     font-family: var(--font-sans);
     font-size: var(--step-0);
     color: var(--text);
-    background: color-mix(in srgb, var(--surface) 70%, transparent);
-    border: 1px solid var(--line-strong);
+    background: color-mix(in srgb, var(--accent) 13%, var(--bg)); /* dark gold */
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line-strong));
     border-radius: 10px;
     padding: 0.9em 1em;
     width: 100%;
@@ -136,16 +167,19 @@ import { site } from "../site";
     transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
   }
   .field input::placeholder,
-  .field textarea::placeholder { color: var(--muted); }
+  .field textarea::placeholder { color: color-mix(in srgb, var(--accent-ink) 55%, transparent); }
   .field input:focus,
   .field textarea:focus {
     outline: none;
     border-color: var(--accent);
-    background: color-mix(in srgb, var(--surface) 90%, transparent);
-    box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.15), 0 0 22px rgba(var(--accent-rgb),0.12);
+    background: color-mix(in srgb, var(--accent) 20%, var(--bg)); /* richer gold on focus */
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.18), 0 0 22px rgba(var(--accent-rgb),0.14);
   }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .form-submit { justify-self: start; margin-top: 0.4rem; }
-  .form-note { font-size: var(--step--1); color: var(--muted); letter-spacing: 0.03em; }
+  .form-status { font-size: var(--step--1); letter-spacing: 0.02em; color: var(--text-soft); }
+  .form-status.is-ok { color: var(--accent-3); }
+  .form-status.is-err { color: #ff9a86; }
 
   /* Info */
   .contact-info { display: grid; gap: 2rem; }

@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# source PDFs — only their rendered page images (…-p01.webp) are shipped
+assets/**/*.pdf

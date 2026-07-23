@@ -26,12 +26,20 @@ except ImportError:
     print("Pillow is not installed. Run:  py -m pip install pillow")
     sys.exit(1)
 
+try:
+    import fitz  # PyMuPDF — used to turn PDF pages into images
+    HAS_FITZ = True
+except ImportError:
+    HAS_FITZ = False
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "assets")
 
 RASTER_EXT = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff", ".avif"}
 LEAVE_ALONE = {".svg", ".gif"}  # served as-is (vector / animated)
 VIDEO_EXT = {".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v", ".ogv", ".wmv", ".flv"}
+PDF_EXT = {".pdf"}
+PDF_ZOOM = 2.2  # render scale (~158 DPI) — crisp on screen without huge files
 
 MAX_IMG_W = 3840
 IMG_QUALITY = 82
@@ -159,6 +167,36 @@ def optimize_video(path, folder):
               f"({size_mb:.1f}MB -> {os.path.getsize(target)/1024/1024:.1f}MB)")
 
 
+def optimize_pdf(path, folder):
+    """Render every page of a PDF to a WebP image so multi-page PDFs show all
+    pages in the gallery. Idempotent: skips if page 1 already exists (delete the
+    generated '<name>-pNN.webp' files to force a re-render)."""
+    base = os.path.basename(path)
+    stem = os.path.splitext(base)[0]
+    cs = clean_stem(stem)
+    if os.path.exists(os.path.join(folder, f"{cs}-p01.webp")):
+        return  # already converted
+    if not HAS_FITZ:
+        print(f"    ! PDF found ({base}) but PyMuPDF isn't installed. Run:  py -m pip install pymupdf")
+        return
+    try:
+        doc = fitz.open(path)
+    except Exception as e:
+        print(f"    ! skip PDF (can't open): {base} ({e})")
+        return
+    mat = fitz.Matrix(PDF_ZOOM, PDF_ZOOM)
+    count = doc.page_count
+    for i in range(count):
+        pix = doc.load_page(i).get_pixmap(matrix=mat, alpha=False)
+        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        if img.width > MAX_IMG_W:
+            img = img.resize((MAX_IMG_W, round(img.height * MAX_IMG_W / img.width)), Image.LANCZOS)
+        img.save(os.path.join(folder, f"{cs}-p{str(i + 1).zfill(2)}.webp"),
+                 "WEBP", quality=IMG_QUALITY, method=6)
+    doc.close()
+    print(f"    pdf      {base}  ->  {count} page image(s)  ({cs}-p01.webp …)")
+
+
 def target_dirs():
     dirs = []
     for name in ("hero", "brand", "bg"):
@@ -180,14 +218,16 @@ def main():
     for folder in target_dirs():
         entries = [f for f in sorted(os.listdir(folder)) if not f.startswith(("_", "."))]
         media = [f for f in entries
-                 if os.path.splitext(f)[1].lower() in RASTER_EXT | VIDEO_EXT | LEAVE_ALONE]
+                 if os.path.splitext(f)[1].lower() in RASTER_EXT | VIDEO_EXT | LEAVE_ALONE | PDF_EXT]
         if not media:
             continue
         print(f"[{os.path.relpath(folder, ROOT)}]")
         for f in media:
             path = os.path.join(folder, f)
             ext = os.path.splitext(f)[1].lower()
-            if ext in VIDEO_EXT:
+            if ext in PDF_EXT:
+                optimize_pdf(path, folder)
+            elif ext in VIDEO_EXT:
                 optimize_video(path, folder)
             elif ext in LEAVE_ALONE:
                 clean_name(path, folder, ext)
