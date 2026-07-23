@@ -163,6 +163,35 @@ const count = media.length;
     };
     document.addEventListener("fullscreenchange", onFsChange);
     document.addEventListener("webkitfullscreenchange", onFsChange);
+
+    // ---- Left-to-right masonry ----
+    // CSS columns fill top-to-bottom; distribute tiles across columns in order
+    // so they read left-to-right (row by row) while staying tightly packed.
+    const gallery = document.querySelector<HTMLElement>(".gallery");
+    if (gallery) {
+      const tiles = Array.from(gallery.querySelectorAll<HTMLElement>(".tile"));
+      let currentCols = 0;
+      const colCount = () => Math.max(1, Math.min(3, Math.floor(gallery.clientWidth / 330)));
+      const layout = () => {
+        const cols = colCount();
+        if (cols === currentCols) return;
+        currentCols = cols;
+        gallery.classList.add("js-masonry");
+        const colEls = Array.from({ length: cols }, () => {
+          const c = document.createElement("div");
+          c.className = "gallery-col";
+          return c;
+        });
+        tiles.forEach((t, i) => colEls[i % cols].appendChild(t));
+        gallery.replaceChildren(...colEls);
+      };
+      layout();
+      let rt: number | undefined;
+      window.addEventListener("resize", () => {
+        window.clearTimeout(rt);
+        rt = window.setTimeout(layout, 150);
+      });
+    }
   </script>
 </BaseLayout>
 
@@ -225,6 +254,22 @@ const count = media.length;
     transform: translateY(-3px);
   }
   .tile img, .tile video { width: 100%; height: auto; display: block; }
+
+  /* JS reflows into real columns so the order reads left-to-right */
+  .gallery.js-masonry {
+    columns: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(0.4rem, 1vw, 0.7rem);
+  }
+  .gallery.js-masonry .gallery-col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vw, 0.7rem);
+  }
+  .gallery.js-masonry .tile { margin: 0; }
   .tile-cap {
     position: absolute;
     left: 0; right: 0; bottom: 0;
