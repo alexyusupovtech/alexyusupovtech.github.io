@@ -1,8 +1,13 @@
-Drop your MOTION (video / cinematography) work in this folder.
+MOTION page — how it works:
 
-Everything you put here appears automatically on the MOTION page,
-in filename order. Videos autoplay muted. Videos: .mp4 .webm .mov  •  Images: .jpg .png .webp
-Tip: name files 01-name.mp4, 02-name.mp4... to control the order.
+1) HERO REEL (plays big at the top, autoplays muted):
+   Drop ONE short video file here, named starting with 01- (e.g. 01-reel.mp4).
+   Keep it small (ideally under ~40 MB) since it's hosted on the site directly.
 
-cd "C:\Users\alexy\Projects\portfolio-website"; npm run publish
+2) EVERYTHING ELSE = YouTube (fast, no size limits):
+   Upload your videos to your YouTube channel, then paste the links into
+   "videos.txt" in this folder — one per line. They show as a clickable grid
+   below the hero reel and play when clicked.
 
+Why: full-size video files are too large for the website host (GitHub caps
+files at 100 MB), so long/large videos live on YouTube and the site embeds them.

@@ -1,0 +1,9 @@
+# YouTube videos for the VFX page.
+# Paste ONE YouTube link per line (order = order shown). Formats that work:
+#   https://www.youtube.com/watch?v=XXXXXXXXXXX
+#   https://youtu.be/XXXXXXXXXXX
+# Optional: add a title before a | to label it, e.g.
+#   Explosion Breakdown | https://youtu.be/XXXXXXXXXXX
+#
+# Lines starting with # are ignored. Add your links below:
+
