@@ -3,3 +3,5 @@ Drop your VFX work in this folder.
 Everything you put here appears automatically on the VFX page,
 in filename order. Videos autoplay muted. Videos: .mp4 .webm .mov  •  Images: .jpg .png .webp
 Tip: name files 01-name.mp4, 02-name.mp4... to control the order.
+
+cd "C:\Users\alexy\Projects\portfolio-website"; npm run publish

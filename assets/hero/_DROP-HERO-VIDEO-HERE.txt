@@ -8,3 +8,5 @@ Best format: .mp4 (H.264), 1920x1080 or larger, landscape.
 Keep it reasonably sized (ideally under ~30-40 MB) so the page loads fast.
 
 Until you add one, the splash shows an animated starfield placeholder.
+
+cd "C:\Users\alexy\Projects\portfolio-website"; npm run publish

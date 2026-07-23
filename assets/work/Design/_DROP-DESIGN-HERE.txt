@@ -3,3 +3,5 @@ Drop your DESIGN (graphic design) work in this folder.
 Everything you put here appears automatically on the DESIGN page,
 in filename order. Images: .jpg .png .webp .gif .svg  •  Videos: .mp4 .webm .mov
 Tip: name files 01-name.jpg, 02-name.jpg... to control the order.
+
+cd "C:\Users\alexy\Projects\portfolio-website"; npm run publish
