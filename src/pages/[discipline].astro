@@ -179,16 +179,16 @@ const count = media.length;
 
   .gallery-section { padding-block: clamp(2.5rem, 5vw, 4rem) clamp(4rem, 9vw, 8rem); }
 
-  /* Masonry via CSS columns — keeps each piece's natural proportions */
+  /* Uniform grid — items flow left-to-right, row by row */
   .gallery {
-    columns: 3 340px;
-    column-gap: clamp(1rem, 2vw, 1.5rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 24vw, 265px), 1fr));
+    gap: clamp(0.7rem, 1.6vw, 1.3rem);
   }
   .tile {
-    break-inside: avoid;
-    margin: 0 0 clamp(1rem, 2vw, 1.5rem);
     position: relative;
     overflow: hidden;
+    aspect-ratio: 4 / 3;
     border-radius: var(--radius);
     border: 1px solid var(--line);
     background: var(--surface);
@@ -224,7 +224,7 @@ const count = media.length;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(var(--accent-rgb),0.22);
     transform: translateY(-3px);
   }
-  .tile img, .tile video { width: 100%; height: auto; display: block; }
+  .tile img, .tile video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .tile-cap {
     position: absolute;
     left: 0; right: 0; bottom: 0;
@@ -298,13 +298,15 @@ const count = media.length;
     .lightbox, .lb-stage { animation: none; }
   }
 
-  /* Empty state */
+  /* Empty state — blurred glass panel (matches the nav bar) */
   .empty {
     text-align: center;
     padding: clamp(3rem, 8vw, 6rem) 1rem;
-    border: 1px dashed var(--line-strong);
+    border: 1px solid var(--line-strong);
     border-radius: 12px;
-    background: color-mix(in srgb, var(--surface) 60%, transparent);
+    background: color-mix(in srgb, var(--bg) 22%, transparent);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
   }
   .empty-orb {
     width: 80px; height: 80px; margin: 0 auto 1.8rem;

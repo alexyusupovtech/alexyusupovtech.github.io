@@ -134,8 +134,8 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
     border: 1px solid var(--line-strong); /* same outline as the Contact button */
     border-radius: 12px;
     background: color-mix(in srgb, var(--bg) 22%, transparent); /* the only difference: a slight black fill */
-    -webkit-backdrop-filter: saturate(160%) blur(2px);
-    backdrop-filter: saturate(160%) blur(2px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
     transform-origin: center;
     transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
       box-shadow var(--dur) var(--ease), transform 0.35s var(--ease);
@@ -184,8 +184,8 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
     border: 1px solid var(--line-strong);
     border-radius: 12px;
     color: var(--text);
-    -webkit-backdrop-filter: saturate(160%) blur(2px);
-    backdrop-filter: saturate(160%) blur(2px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
     transform-origin: center;
     transition: border-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.4s var(--ease), transform 0.35s var(--ease);
   }
