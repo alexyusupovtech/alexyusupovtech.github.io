@@ -259,7 +259,7 @@ const media = feature ? allMedia.slice(1) : allMedia;
     outline-offset: 3px;
   }
 
-  /* Play badge on video tiles */
+  /* Play badge on video tiles — glass style, matching the nav bar */
   .tile-play {
     position: absolute;
     top: 50%; left: 50%;
@@ -270,14 +270,21 @@ const media = feature ? allMedia.slice(1) : allMedia;
     width: 64px; height: 64px;
     padding-left: 4px;
     border-radius: 50%;
-    color: #05060D;
-    background: color-mix(in srgb, var(--accent) 92%, transparent);
-    box-shadow: 0 0 30px rgba(var(--accent-rgb),0.5);
-    opacity: 0.85;
-    transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+    color: var(--accent-ink);
+    background: color-mix(in srgb, var(--bg) 22%, transparent);
+    border: 1px solid var(--line-strong);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
+    opacity: 0.9;
+    transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
     pointer-events: none;
   }
-  .tile--video:hover .tile-play { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .tile--video:hover .tile-play {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    border-color: var(--accent);
+    box-shadow: 0 0 22px rgba(var(--accent-rgb),0.4);
+  }
   .tile:hover {
     border-color: color-mix(in srgb, var(--accent) 60%, transparent);
     box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(var(--accent-rgb),0.22);
