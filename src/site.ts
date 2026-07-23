@@ -29,13 +29,13 @@ export const site = {
 // The four disciplines = the four main navigation tabs = the four
 // gallery pages. `folder` is the drop folder under assets/work/.
 export const disciplines = [
-  { key: "motion",       title: "Motion",       href: "/motion",       folder: "Motion",
+  { key: "motion",       title: "Motion",       href: "/motion",       folder: "Motion",       feature: true,
     blurb: "Cinematography and motion with a pulse. Every sequence is shot, cut and paced to pull people in and keep them watching, turning raw footage into stories that carry real momentum. Whether it's a short film, a promo or a title sequence, the goal stays the same: make you feel something, frame after frame." },
-  { key: "vfx",          title: "VFX",          href: "/vfx",          folder: "VFX",
+  { key: "vfx",          title: "VFX",          href: "/vfx",          folder: "VFX",          feature: true,
     blurb: "This is where the impossible gets composited into place. Blending AI driven techniques with hands on craft, I animate, enhance and seamlessly integrate effects that push what a single frame can hold. From subtle cleanups to full blown spectacle, every shot is built to feel invisible and unforgettable at once." },
-  { key: "design",       title: "Design",       href: "/design",       folder: "Design",
+  { key: "design",       title: "Design",       href: "/design",       folder: "Design",       feature: false,
     blurb: "From a single logo to a complete brand system, this is design that earns a second look. Every mark, layout and typographic choice is drawn with intent in Illustrator and Photoshop, balancing bold visual impact with the clarity that makes a message land. Considered, striking, and built to last." },
-  { key: "illustration", title: "Illustration", href: "/illustration", folder: "Illustration",
+  { key: "illustration", title: "Illustration", href: "/illustration", folder: "Illustration", feature: false,
     blurb: "Characterful, original artwork with a voice all its own. Drawn by hand and refined digitally, my illustration work gives a project personality you simply can't fake, from playful characters to intricate detail. Art that adds warmth, story and a welcome spark of the unexpected." },
 ];
 

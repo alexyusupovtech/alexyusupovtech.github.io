@@ -11,8 +11,11 @@ export function getStaticPaths() {
 }
 
 const { discipline } = Astro.props;
-const media = getWorkMedia(discipline.folder);
-const count = media.length;
+const allMedia = getWorkMedia(discipline.folder);
+const count = allMedia.length;
+// On video pages, show the first piece BIG (featured) and the rest small below.
+const feature = (discipline as any).feature && count > 0 ? allMedia[0] : null;
+const media = feature ? allMedia.slice(1) : allMedia;
 ---
 
 <BaseLayout
@@ -43,6 +46,31 @@ const count = media.length;
           </p>
         </div>
       ) : (
+        <>
+        {feature && (
+          <figure
+            class:list={["tile", "feature-tile", { "tile--video": feature.type === "video" }]}
+            data-reveal
+            role="button"
+            tabindex="0"
+            aria-label={`Open ${feature.name}`}
+            data-type={feature.type}
+            data-src={feature.src}
+            data-name={feature.name}
+          >
+            {feature.type === "video" ? (
+              <video src={feature.src} muted loop autoplay playsinline preload="auto"></video>
+            ) : (
+              <img src={feature.src} alt={feature.name} decoding="async" />
+            )}
+            {feature.type === "video" && (
+              <span class="tile-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            )}
+          </figure>
+        )}
+        {media.length > 0 && (
         <div class="gallery">
           {media.map((m, i) => (
             <figure
@@ -70,6 +98,8 @@ const count = media.length;
             </figure>
           ))}
         </div>
+        )}
+        </>
       )}
     </div>
   </section>
@@ -254,6 +284,15 @@ const count = media.length;
     transform: translateY(-3px);
   }
   .tile img, .tile video { width: 100%; height: auto; display: block; }
+
+  /* Featured hero (first piece on video pages) — big, full width */
+  .feature-tile {
+    display: block;
+    width: 100%;
+    margin: 0 0 clamp(1rem, 2.5vw, 2rem);
+  }
+  .feature-tile:hover { transform: none; }
+  .feature-tile .tile-play { opacity: 0.9; }
 
   /* JS reflows into real columns so the order reads left-to-right */
   .gallery.js-masonry {
